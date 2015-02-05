@@ -1,0 +1,9 @@
+
+	# cat=basic/config/1; type=string; label=Placeholder service URL: The URL for the placeholder service. Will be parsed through sprintf(). First parameter is width, second parameter is height.
+placeholderServiceUrl = http://www.placecage.com/c/%d/%d
+
+	# cat=basic/config/2; type=int+; label=Maximum image width: To prevent too large images from beeing fetched from the placeholder service the maximum image width can be limited witdh this setting.
+imageMaxWidth = 1024
+
+	# cat=basic/config/2; type=int+; label=Maximum image height: To prevent too large images from beeing fetched from the placeholder service the maximum image width can be limited height this setting.
+imageMaxHeight = 1024
