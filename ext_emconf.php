@@ -1,7 +1,7 @@
 <?php
 
 $EM_CONF[$_EXTKEY] = array(
-	'title' => 'FAL dummy driver',
+	'title' => 'FAL dummy image driver',
 	'description' => 'Provides a dummy image driver the TYPO3 File Abstraction Layer (FAL) that can be used in development.',
 	'category' => 'misc',
 	'shy' => 0,
