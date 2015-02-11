@@ -252,6 +252,12 @@ class DummyDriver extends \TYPO3\CMS\Core\Resource\Driver\LocalDriver {
 	 */
 	protected function useParentDriver($fileIdentifier) {
 
+		// If $fileIdentifer points to a directory (last character is as slash)
+		// we let the parent driver handle the request.
+		if (substr($fileIdentifier, -1) === '/')  {
+			return TRUE;
+		}
+
 		if (parent::fileExists($fileIdentifier)) {
 			return TRUE;
 		}
