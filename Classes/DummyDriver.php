@@ -116,7 +116,16 @@ class DummyDriver extends \TYPO3\CMS\Core\Resource\Driver\LocalDriver {
 		if ($this->useParentDriver($fileIdentifier)) {
 			return parent::getFileContents($fileIdentifier);
 		}
-		return GeneralUtility::getUrl($this->getPublicUrl($fileIdentifier));
+
+		$errorReport = array();
+		$imageUrl = $this->getPublicUrl($fileIdentifier);
+		$result = GeneralUtility::getUrl($imageUrl, 0, FALSE, $errorReport);
+
+		if ($result === FALSE) {
+			throw new \RuntimeException(sprintf('Error fetching placeholder image %s, occured error was: ', $imageUrl) . $errorReport['message']);
+		}
+
+		return $result;
 	}
 
 	/**
@@ -254,7 +263,7 @@ class DummyDriver extends \TYPO3\CMS\Core\Resource\Driver\LocalDriver {
 
 		// If $fileIdentifer points to a directory (last character is as slash)
 		// we let the parent driver handle the request.
-		if (substr($fileIdentifier, -1) === '/')  {
+		if (substr($fileIdentifier, -1) === '/') {
 			return TRUE;
 		}
 
