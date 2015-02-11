@@ -284,12 +284,29 @@ class DummyDriver extends \TYPO3\CMS\Core\Resource\Driver\LocalDriver {
 	}
 
 	/**
+	 * Returns an instance of the FileIndexRepository
 	 *
+	 * @return \TYPO3\CMS\Core\Resource\Index\FileIndexRepository
+	 */
+	protected function getFileIndexRepository() {
+		return \TYPO3\CMS\Core\Resource\Index\FileIndexRepository::getInstance();
+	}
+
+
+	/**
 	 * @param string $identifier
-	 * @return \TYPO3\CMS\Core\Resource\File
+	 * @return NULL|\TYPO3\CMS\Core\Resource\File|\TYPO3\CMS\Core\Resource\ProcessedFile
 	 */
 	protected function getFileObjectByIdentifier($identifier) {
-		return \TYPO3\CMS\Core\Resource\ResourceFactory::getInstance()->getFileObjectFromCombinedIdentifier($this->storageUid . ':' . $identifier);
+		return $this->getResourceFactory()->getFileObjectByStorageAndIdentifier($this->storageUid, $identifier);
+	}
+
+	/**
+	 *
+	 * @return \TYPO3\CMS\Core\Resource\ResourceFactory
+	 */
+	protected function getResourceFactory() {
+		return \TYPO3\CMS\Core\Resource\ResourceFactory::getInstance();
 	}
 
 	/**
@@ -305,8 +322,19 @@ class DummyDriver extends \TYPO3\CMS\Core\Resource\Driver\LocalDriver {
 			return TRUE;
 		}
 
+		$storage = $this->getResourceFactory()->getStorageObject($this->storageUid);
+
+		if ($storage->isWithinProcessingFolder($fileIdentifier)) {
+			return TRUE;
+		}
+
+		$fileData = $this->getFileIndexRepository()->findOneByStorageUidAndIdentifier($storage->getUid(), $fileIdentifier);
+		if ($fileData === FALSE) {
+			return TRUE;
+		}
+
 		$this->disableHasFileCheck = TRUE;
-		$file = $this->getFileObjectByIdentifier($fileIdentifier);
+		$file = $this->getResourceFactory()->getFileObjectByStorageAndIdentifier($this->storageUid, $fileIdentifier);
 		$this->disableHasFileCheck = FALSE;
 
 		if (isset($file)) {
