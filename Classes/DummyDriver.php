@@ -12,6 +12,7 @@ namespace Tx\FalDummy;
  *                                                                        */
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Utility\PathUtility;
 
 /**
  * This driver will use a placeholder service for displaying non existing images.
@@ -155,6 +156,45 @@ class DummyDriver extends \TYPO3\CMS\Core\Resource\Driver\LocalDriver {
 	}
 
 	/**
+	 * Returns information about a folder, no matter if it exists.
+	 *
+	 * @param string $folderIdentifier In the case of the LocalDriver, this is the (relative) path to the file.
+	 * @return array
+	 * @throws \TYPO3\CMS\Core\Resource\Exception\FolderDoesNotExistException
+	 */
+	public function getFolderInfoByIdentifier($folderIdentifier) {
+
+		if (is_dir($this->getAbsolutePath($folderIdentifier))) {
+			return parent::getFolderInfoByIdentifier($folderIdentifier);
+		}
+
+		return array(
+			'identifier' => $folderIdentifier,
+			'name' => PathUtility::basename($folderIdentifier),
+			'storage' => $this->storageUid
+		);
+	}
+
+	/**
+	 * We always return read and write permissions if the file does not exist.
+	 *
+	 * @param string $identifier
+	 * @return array
+	 * @throws \RuntimeException
+	 */
+	public function getPermissions($identifier) {
+
+		if (file_exists($this->getAbsolutePath($identifier))) {
+			return parent::getPermissions($identifier);
+		}
+
+		return array(
+			'r' => TRUE,
+			'w' => TRUE
+		);
+	}
+
+	/**
 	 * Returns the public URL to a file.
 	 * Either fully qualified URL or relative to PATH_site (rawurlencoded).
 	 *
@@ -261,13 +301,7 @@ class DummyDriver extends \TYPO3\CMS\Core\Resource\Driver\LocalDriver {
 	 */
 	protected function useParentDriver($fileIdentifier) {
 
-		// If $fileIdentifer points to a directory (last character is as slash)
-		// we let the parent driver handle the request.
-		if (substr($fileIdentifier, -1) === '/') {
-			return TRUE;
-		}
-
-		if (parent::fileExists($fileIdentifier)) {
+		if (file_exists($this->getAbsolutePath($fileIdentifier))) {
 			return TRUE;
 		}
 
