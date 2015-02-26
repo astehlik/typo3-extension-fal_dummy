@@ -11,6 +11,7 @@ namespace Tx\FalDummy;
  * The TYPO3 project - inspiring people to share!                         *
  *                                                                        */
 
+use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\PathUtility;
 
@@ -37,9 +38,23 @@ class DummyDriver extends \TYPO3\CMS\Core\Resource\Driver\LocalDriver {
 	protected $imageMaxWidth = 1024;
 
 	/**
+	 * The path to the local dummy resources.
+	 *
+	 * @var string
+	 */
+	protected $localDummyResourcePath;
+
+	/**
 	 * @var string
 	 */
 	protected $placeholderServiceUrl = 'http://www.placecage.com/c/%d/%d';
+
+	/**
+	 * If this is TRUE a the local resources will be used instead of the placeholder service.
+	 *
+	 * @var bool
+	 */
+	protected $useLocalFilesIfAvailable = FALSE;
 
 	/**
 	 * Initializes this object. This is called by the storage after the driver
@@ -50,6 +65,8 @@ class DummyDriver extends \TYPO3\CMS\Core\Resource\Driver\LocalDriver {
 	public function initialize() {
 
 		parent::initialize();
+
+		$this->localDummyResourcePath = ExtensionManagementUtility::siteRelPath('fal_dummy') . 'Resources/Public/DummyFiles/';
 
 		/** @var \Tx\FalDummy\Utility\ExtensionConfiguration $configuration */
 		$configuration = GeneralUtility::makeInstance('Tx\\FalDummy\\Utility\\ExtensionConfiguration');
@@ -65,6 +82,12 @@ class DummyDriver extends \TYPO3\CMS\Core\Resource\Driver\LocalDriver {
 
 		if (!empty($configuration['imageMaxHeight'] && $configuration['imageMaxHeight'] > 0)) {
 			$this->imageMaxHeight = (int)$configuration['imageMaxHeight'];
+		}
+
+		if (!isset($configuration['useLocalFilesIfAvailable'])) {
+			$this->useLocalFilesIfAvailable = (bool)$configuration['useLocalFilesIfAvailable'];
+		} else {
+			$this->useLocalFilesIfAvailable = TRUE;
 		}
 	}
 
@@ -214,7 +237,11 @@ class DummyDriver extends \TYPO3\CMS\Core\Resource\Driver\LocalDriver {
 
 		$this->calculateMaxWidthAndHeight($width, $height);
 
-		$publicUrl = sprintf($this->placeholderServiceUrl, $width, $height);
+		$publicUrl = $this->getLocalUrl($file);
+
+		if (!isset($publicUrl)) {
+			$publicUrl = sprintf($this->placeholderServiceUrl, $width, $height);
+		}
 
 		return $publicUrl;
 	}
@@ -292,13 +319,36 @@ class DummyDriver extends \TYPO3\CMS\Core\Resource\Driver\LocalDriver {
 		return \TYPO3\CMS\Core\Resource\Index\FileIndexRepository::getInstance();
 	}
 
-
 	/**
 	 * @param string $identifier
 	 * @return NULL|\TYPO3\CMS\Core\Resource\File|\TYPO3\CMS\Core\Resource\ProcessedFile
 	 */
 	protected function getFileObjectByIdentifier($identifier) {
 		return $this->getResourceFactory()->getFileObjectByStorageAndIdentifier($this->storageUid, $identifier);
+	}
+
+	/**
+	 * @param \TYPO3\CMS\Core\Resource\File $file
+	 * @return null
+	 */
+	protected function getLocalUrl($file) {
+
+		if (!$this->useLocalFilesIfAvailable) {
+			return NULL;
+		}
+
+		$extension = $file->getExtension();
+		$dummyFile = $this->localDummyResourcePath . $extension . '.' . $extension;
+
+		if (file_exists($dummyFile)) {
+			$dummyFileObject = $this->getResourceFactory()->getFileObjectFromCombinedIdentifier($dummyFile);
+		}
+
+		if (isset($dummyFileObject) && $dummyFileObject->exists()) {
+			return $dummyFileObject->getPublicUrl();
+		} else {
+			return NULL;
+		}
 	}
 
 	/**

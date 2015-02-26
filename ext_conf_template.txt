@@ -7,3 +7,6 @@ imageMaxWidth = 1024
 
 	# cat=basic/config/2; type=int+; label=Maximum image height: To prevent too large images from beeing fetched from the placeholder service the maximum image width can be limited height this setting.
 imageMaxHeight = 1024
+
+	# cat=basic/config/3; type=boolean; label=Use local files: if this is TRUE local placeholder files will be used instead of the configured placeholder service (better performance).
+useLocalFilesIfAvailable = 1
