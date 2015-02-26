@@ -84,7 +84,7 @@ class DummyDriver extends \TYPO3\CMS\Core\Resource\Driver\LocalDriver {
 			$this->imageMaxHeight = (int)$configuration['imageMaxHeight'];
 		}
 
-		if (!isset($configuration['useLocalFilesIfAvailable'])) {
+		if (isset($configuration['useLocalFilesIfAvailable'])) {
 			$this->useLocalFilesIfAvailable = (bool)$configuration['useLocalFilesIfAvailable'];
 		} else {
 			$this->useLocalFilesIfAvailable = TRUE;
