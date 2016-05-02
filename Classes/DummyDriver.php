@@ -66,7 +66,9 @@ class DummyDriver extends \TYPO3\CMS\Core\Resource\Driver\LocalDriver {
 
 		parent::initialize();
 
-		$this->localDummyResourcePath = ExtensionManagementUtility::siteRelPath('fal_dummy') . 'Resources/Public/DummyFiles/';
+		$this->localDummyResourcePath = GeneralUtility::getFileAbsFileName(
+			'EXT:fal_dummy/Resources/Public/DummyFiles/'
+		);
 
 		/** @var \Tx\FalDummy\Utility\ExtensionConfiguration $configuration */
 		$configuration = GeneralUtility::makeInstance('Tx\\FalDummy\\Utility\\ExtensionConfiguration');
@@ -337,11 +339,16 @@ class DummyDriver extends \TYPO3\CMS\Core\Resource\Driver\LocalDriver {
 			return NULL;
 		}
 
+		if (empty($this->localDummyResourcePath) || !is_dir($this->localDummyResourcePath)) {
+			return NULL;
+		}
+
 		$extension = $file->getExtension();
 		$dummyFile = $this->localDummyResourcePath . $extension . '.' . $extension;
 
 		if (file_exists($dummyFile)) {
-			$dummyFileObject = $this->getResourceFactory()->getFileObjectFromCombinedIdentifier($dummyFile);
+			$dummyFileRelative = substr($dummyFile, strlen(PATH_site));
+			$dummyFileObject = $this->getResourceFactory()->getFileObjectFromCombinedIdentifier($dummyFileRelative);
 		}
 
 		if (isset($dummyFileObject) && $dummyFileObject->exists()) {
