@@ -1,4 +1,5 @@
 <?php
+
 namespace Tx\FalDummy\Utility;
 
 /*                                                                        *
@@ -16,25 +17,26 @@ use TYPO3\CMS\Core\SingletonInterface;
 /**
  * Handles the extension configuration.
  */
-class ExtensionConfiguration implements SingletonInterface {
+class ExtensionConfiguration implements SingletonInterface
+{
+    /**
+     * Returns the unserialized Extension Configuration.
+     *
+     * @return array
+     */
+    public function getConfigurationArray()
+    {
 
-	/**
-	 * Returns the unserialized Extension Configuration.
-	 *
-	 * @return array
-	 */
-	public function getConfigurationArray() {
+        if (empty($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['fal_dummy'])) {
+            return null;
+        }
 
-		if (empty($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['fal_dummy'])) {
-			return NULL;
-		}
+        $configuration = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['fal_dummy']);
 
-		$configuration = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['fal_dummy']);
+        if (!is_array($configuration)) {
+            return null;
+        }
 
-		if (!is_array($configuration)) {
-			return NULL;
-		}
-
-		return $configuration;
-	}
+        return $configuration;
+    }
 }
