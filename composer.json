@@ -2,7 +2,6 @@
 	"name": "de-swebhosting-typo3-extension/fal-dummy",
 	"description": "FAL dummy image driver",
 	"type": "typo3-cms-extension",
-	"version": "0.1.0",
 	"license": "GPL-3.0+",
 	"replace": {
 		"fal_dummy": "self.version"
