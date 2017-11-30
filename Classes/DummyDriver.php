@@ -12,6 +12,7 @@ namespace Tx\FalDummy;
  * The TYPO3 project - inspiring people to share!                         *
  *                                                                        */
 
+use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\PathUtility;
 
@@ -145,6 +146,12 @@ class DummyDriver extends \TYPO3\CMS\Core\Resource\Driver\LocalDriver
     {
         if ($this->useParentDriver($fileIdentifier)) {
             return parent::getFileContents($fileIdentifier);
+        }
+
+        $file = $this->getFileObjectByIdentifier($fileIdentifier);
+        $dummyFile = $this->getDummyFileObject($file);
+        if ($dummyFile) {
+            return $dummyFile->getContents();
         }
 
         $errorReport = [];
@@ -325,6 +332,31 @@ class DummyDriver extends \TYPO3\CMS\Core\Resource\Driver\LocalDriver
     }
 
     /**
+     * @param \TYPO3\CMS\Core\Resource\File $file
+     * @return \TYPO3\CMS\Core\Resource\File
+     */
+    protected function getDummyFileObject($file): \TYPO3\CMS\Core\Resource\File
+    {
+        if (!$this->useLocalFilesIfAvailable) {
+            return null;
+        }
+
+        if (empty($this->localDummyResourcePath) || !is_dir($this->localDummyResourcePath)) {
+            return null;
+        }
+
+        $extension = $file->getExtension();
+        $dummyFile = $this->localDummyResourcePath . $extension . '.' . $extension;
+
+        if (file_exists($dummyFile)) {
+            $dummyFileRelative = substr($dummyFile, strlen(PATH_site));
+            return $this->getResourceFactory()->getFileObjectFromCombinedIdentifier($dummyFileRelative);
+        }
+
+        return null;
+    }
+
+    /**
      * Returns an instance of the FileIndexRepository
      *
      * @return \TYPO3\CMS\Core\Resource\Index\FileIndexRepository
@@ -349,22 +381,7 @@ class DummyDriver extends \TYPO3\CMS\Core\Resource\Driver\LocalDriver
      */
     protected function getLocalUrl($file)
     {
-
-        if (!$this->useLocalFilesIfAvailable) {
-            return null;
-        }
-
-        if (empty($this->localDummyResourcePath) || !is_dir($this->localDummyResourcePath)) {
-            return null;
-        }
-
-        $extension = $file->getExtension();
-        $dummyFile = $this->localDummyResourcePath . $extension . '.' . $extension;
-
-        if (file_exists($dummyFile)) {
-            $dummyFileRelative = substr($dummyFile, strlen(PATH_site));
-            $dummyFileObject = $this->getResourceFactory()->getFileObjectFromCombinedIdentifier($dummyFileRelative);
-        }
+        $dummyFileObject = $this->getDummyFileObject($file);
 
         if (isset($dummyFileObject) && $dummyFileObject->exists()) {
             return $dummyFileObject->getPublicUrl();
