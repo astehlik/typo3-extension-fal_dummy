@@ -322,6 +322,55 @@ class DummyDriver extends \TYPO3\CMS\Core\Resource\Driver\LocalDriver
     }
 
     /**
+     * Generic wrapper for extracting a list of items from a path.
+     *
+     * @param string $folderIdentifier
+     * @param int $start The position to start the listing; if not set, start from the beginning
+     * @param int $numberOfItems The number of items to list; if set to zero, all items are returned
+     * @param array $filterMethods The filter methods used to filter the directory items
+     * @param bool $includeFiles
+     * @param bool $includeDirs
+     * @param bool $recursive
+     * @param string $sort Property name used to sort the items.
+     *                     Among them may be: '' (empty, no sorting), name,
+     *                     fileext, size, tstamp and rw.
+     *                     If a driver does not support the given property, it
+     *                     should fall back to "name".
+     * @param bool $sortRev TRUE to indicate reverse sorting (last to first)
+     * @return array
+     * @throws \InvalidArgumentException
+     */
+    protected function getDirectoryItemList(
+        $folderIdentifier,
+        $start = 0,
+        $numberOfItems = 0,
+        array $filterMethods,
+        $includeFiles = true,
+        $includeDirs = true,
+        $recursive = false,
+        $sort = '',
+        $sortRev = false
+    ) {
+        $folderIdentifier = $this->canonicalizeAndCheckFolderIdentifier($folderIdentifier);
+        $realPath = $this->getAbsolutePath($folderIdentifier);
+        if (!is_dir($realPath)) {
+            return [];
+        }
+
+        return parent::getDirectoryItemList(
+            $folderIdentifier,
+            $start,
+            $numberOfItems,
+            $filterMethods,
+            $includeFiles,
+            $includeDirs,
+            $recursive,
+            $sort,
+            $sortRev
+        );
+    }
+
+    /**
      * @param \TYPO3\CMS\Core\Resource\File $file
      * @return \TYPO3\CMS\Core\Resource\File
      */
