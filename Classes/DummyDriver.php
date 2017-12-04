@@ -12,7 +12,6 @@ namespace Tx\FalDummy;
  * The TYPO3 project - inspiring people to share!                         *
  *                                                                        */
 
-use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\PathUtility;
 
@@ -65,7 +64,6 @@ class DummyDriver extends \TYPO3\CMS\Core\Resource\Driver\LocalDriver
      */
     public function initialize()
     {
-
         parent::initialize();
 
         $this->localDummyResourcePath = GeneralUtility::getFileAbsFileName(
@@ -105,7 +103,6 @@ class DummyDriver extends \TYPO3\CMS\Core\Resource\Driver\LocalDriver
      */
     public function dumpFileContents($identifier)
     {
-
         if ($this->useParentDriver($identifier)) {
             parent::dumpFileContents($identifier);
         }
@@ -121,7 +118,6 @@ class DummyDriver extends \TYPO3\CMS\Core\Resource\Driver\LocalDriver
      */
     public function fileExists($fileIdentifier)
     {
-
         if ($this->disableHasFileCheck) {
             return true;
         }
@@ -176,7 +172,6 @@ class DummyDriver extends \TYPO3\CMS\Core\Resource\Driver\LocalDriver
      */
     public function getFileForLocalProcessing($fileIdentifier, $writable = true)
     {
-
         if ($this->useParentDriver($fileIdentifier)) {
             return parent::getFileForLocalProcessing($fileIdentifier, $writable);
         }
@@ -202,7 +197,6 @@ class DummyDriver extends \TYPO3\CMS\Core\Resource\Driver\LocalDriver
      */
     public function getFolderInfoByIdentifier($folderIdentifier)
     {
-
         if (is_dir($this->getAbsolutePath($folderIdentifier))) {
             return parent::getFolderInfoByIdentifier($folderIdentifier);
         }
@@ -223,7 +217,6 @@ class DummyDriver extends \TYPO3\CMS\Core\Resource\Driver\LocalDriver
      */
     public function getPermissions($identifier)
     {
-
         if (file_exists($this->getAbsolutePath($identifier))) {
             return parent::getPermissions($identifier);
         }
@@ -243,7 +236,6 @@ class DummyDriver extends \TYPO3\CMS\Core\Resource\Driver\LocalDriver
      */
     public function getPublicUrl($identifier)
     {
-
         if ($this->useParentDriver($identifier)) {
             return parent::getPublicUrl($identifier);
         }
@@ -275,7 +267,6 @@ class DummyDriver extends \TYPO3\CMS\Core\Resource\Driver\LocalDriver
      */
     public function hash($fileIdentifier, $hashAlgorithm)
     {
-
         if ($this->useParentDriver($fileIdentifier)) {
             return parent::hash($fileIdentifier, $hashAlgorithm);
         }
@@ -303,7 +294,6 @@ class DummyDriver extends \TYPO3\CMS\Core\Resource\Driver\LocalDriver
      */
     protected function calculateMaxWidthAndHeight(&$width, &$height)
     {
-
         $maxWidth = $this->imageMaxWidth;
         $maxHeight = $this->imageMaxHeight;
 
@@ -408,7 +398,6 @@ class DummyDriver extends \TYPO3\CMS\Core\Resource\Driver\LocalDriver
      */
     protected function useParentDriver($fileIdentifier)
     {
-
         if (file_exists($this->getAbsolutePath($fileIdentifier))) {
             return true;
         }
