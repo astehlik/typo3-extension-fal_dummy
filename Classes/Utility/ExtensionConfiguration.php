@@ -26,7 +26,6 @@ class ExtensionConfiguration implements SingletonInterface
      */
     public function getConfigurationArray()
     {
-
         if (empty($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['fal_dummy'])) {
             return null;
         }
